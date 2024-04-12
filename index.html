@@ -1,94 +1,456 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
+<head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- These tags are needed for enabling experimental Chrome APIs via Chrome's Origin-Trial program (Android, Windows): https://github.com/GoogleChrome/OriginTrials/blob/gh-pages/available-trials.md#current-experimental-features -->
-    <!-- Origin Trial Token, feature = Generic Sensors, origin = https://github.io, expires = 2018-04-10 -->
-    <meta http-equiv="origin-trial" data-feature="Generic Sensors" data-expires="2018-04-10" content="Aokv0ODVMUPIswIBi6DnpAIjhWefEd8gD8GpVgdYgETj0C5+/3kKMzZE/FOrBwHcpBO6LHuVRrIw3yOT8EMmJAYAAABQeyJvcmlnaW4iOiJodHRwczovL2dpdGh1Yi5pbzo0NDMiLCJmZWF0dXJlIjoiR2VuZXJpY1NlbnNvciIsImV4cGlyeSI6MTUyMzMxODQwMH0=">
-    <!-- Origin Trial Token, feature = WebVR (For Chrome M62+), origin = https://github.io, expires = 2018-05-07 -->
-    <meta http-equiv="origin-trial" data-feature="WebXR (For Chrome M62+)" data-expires="2018-05-07" content="AgINztgDnjFV8da2D9SSzIITBRlHX8mduCR7DXfENxjr9ALduKOxBDdn2n66auQSlljVyhnRWWerxC0BWbE8pAoAAABOeyJvcmlnaW4iOiJodHRwczovL2dpdGh1Yi5pbzo0NDMiLCJmZWF0dXJlIjoiV2ViVlIxLjFNNjIiLCJleHBpcnkiOjE1MjU3MjU4MDh9">
-    <title>Sunny Desert | Unity-WebXR-Export</title>
-    <meta name="description" content="Complete interactive 3D scene demo made in Unity and exported to WebXR with the WebXR template of the Unity WebXR assets">
-    <meta name="color-scheme" content="normal" />
-    <link rel="icon" href="favicon.ico">
-    <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" type="text/css" href="styles/webxr.css">
+    <title>Assessoria Digital - Prioridades </title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        .item-container {
+            margin-bottom: 10px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input[type="range"] {
+            width: 200px;
+        }
+        select {
+            margin-left: 10px;
+        }
+        #chart {
+            width: 100%;
+            height: 400px;
+        }
+        #calculator {
+            margin-top: 20px;
+        }
+        #listaTemposPorItem {
+            list-style-type: none;
+            padding: 0;
+        }
+        #listaTemposPorItem li {
+            background-color: #f1f1f1;
+            padding: 10px;
+            margin-bottom: 5px;
+            cursor: move;
+        }
+        .item-container.inactive {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+        .item-container.inactive select {
+            pointer-events: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Assessoria Digital - Prioridades</h1>
+    <form id="itemForm">
+        <div class="item-container">
+            <label for="negocio">Negócio / Projeto: <span id="negocioValue">10</span>%</label>
+            <input type="range" id="negocio" name="negocio" min="0" max="100" value="10" step="1">
+            <select id="negocioPrioridade" onchange="toggleItemStatus(this)">
+                <option value="0" selected>0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10">10</option>
+            </select>
+        </div>
 
-    <script src="lib/telemetry.js"></script>
-    <script>
-      MozillaResearch.telemetry.start({
-        analytics: true,
-        errorLogging: true,
-        performance: true
-      });
-      MozillaResearch.telemetry.performance.mark('LoaderParsingStart');
-    </script>
+        <div class="item-container">
+            <label for="nicho">Nicho / Público Alvo: <span id="nichoValue">10</span>%</label>
+            <input type="range" id="nicho" name="nicho" min="0" max="100" value="10" step="1">
+            <select id="nichoPrioridade" onchange="toggleItemStatus(this)">
+                <option value="0" selected>0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10">10</option>
+            </select>
+        </div>
 
-    <script src="Build/UnityLoader.js"></script>
-    <script>
-        UnityLoader.SystemInfo.mobile = false;  // Workaround to force `UnityLoader` to actually load on mobile.
-        window.gameInstance = UnityLoader.instantiate('gameContainer', 'Build/Builds.json', {
-          Module: {
-            // `preserveDrawingBuffer` is needed for WebVR content to be mirrored to the `<canvas>`.
-            webglContextAttributes: {
-              preserveDrawingBuffer: true
-            }
-          },
-          onProgress: unityProgress
+        <div class="item-container">
+            <label for="ticket">Aumento Ticket Médio: <span id="ticketValue">10</span>%</label>
+            <input type="range" id="ticket" name="ticket" min="0" max="100" value="10" step="1">
+            <select id="ticketPrioridade" onchange="toggleItemStatus(this)">
+                <option value="0" selected>0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10">10</option>
+            </select>
+        </div>
+
+        <div class="item-container">
+            <label for="base">Aum. Base Clientes: <span id="baseValue">10</span>%</label>
+            <input type="range" id="base" name="base" min="0" max="100" value="10" step="1">
+            <select id="basePrioridade" onchange="toggleItemStatus(this)">
+                <option value="0" selected> 0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10">10</option>
+            </select>
+        </div>
+
+        <div class="item-container">
+            <label for="assinantes">Crescimento Assinantes: <span id="assinantesValue">10</span>%</label>
+            <input type="range" id="assinantes" name="assinantes" min="0" max="100" value="10" step="1">
+            <select id="assinantesPrioridade" onchange="toggleItemStatus(this)">
+                <option value="0" selected>0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10">10</option>
+            </select>
+        </div>
+
+        <div class="item-container">
+            <label for="posicionamento">Posicionamento Digital: <span id="posicionamentoValue">10</span>%</label>
+            <input type="range" id="posicionamento" name="posicionamento" min="0" max="100" value="10" step="1">
+            <select id="posicionamentoPrioridade" onchange="toggleItemStatus(this)">
+                <option value="0" selected>0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10">10</option>
+            </select>
+        </div>
+
+        <div class="item-container">
+            <label for="viabilidade">Análise Viab. Lucro: <span id="viabilidadeValue">10</span>%</label>
+            <input type="range" id="viabilidade" name="viabilidade" min="0" max="100" value="10" step="1">
+            <select id="viabilidadePrioridade" onchange="toggleItemStatus(this)">
+                <option value="0" selected>0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+				<option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10">10</option>
+            </select>
+        </div>
+
+ <div class="item-container">
+        <label for="retencao">Verif. Retenção Clientes: <span id="retencaoValue">10</span>%</label>
+        <input type="range" id="retencao" name="retencao" min="0" max="100" value="10" step="1">
+        <select id="retencaoPrioridade" onchange="toggleItemStatus(this)">
+            <option value="0" selected>0</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+        </select>
+    </div>
+
+    <div class="item-container">
+        <label for="processos">Produtividade e Processos: <span id="processosValue">10</span>%</label>
+        <input type="range" id="processos" name="processos" min="0" max="100" value="10" step="1">
+        <select id="processosPrioridade" onchange="toggleItemStatus(this)">
+            <option value="0" selected>0</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+        </select>
+    </div>
+
+    <div class="item-container">
+        <label for="trafego">Tráfego / Site: <span id="trafegoValue">10</span>%</label>
+        <input type="range" id="trafego" name="trafego" min="0" max="100" value="10" step="1">
+        <select id="trafegoPrioridade" onchange="toggleItemStatus(this)">
+            <option value="0" selected>0</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+        </select>
+    </div>
+</form>
+
+<div id="chart"></div>
+
+<div id="calculator">
+    <h2>Calculadora de Tempo Dedicado</h2>
+    <label for="frequencia">Frequência das Sessões:</label>
+    <select id="frequencia" name="frequencia">
+        <option value="semanal">Semanal</option>
+        <option value="quinzenal">Quinzenal</option>
+        <option value="21dias">A cada 21 dias</option>
+    </select>
+    <br><br>
+    <label for="horas">Horas por Sessão:</label>
+    <input type="number" id="horas" name="horas" min="1" value="1">
+    <br><br>
+    <button onclick="calcularTempoDedicado()">Calcular Tempo Dedicado</button>
+    <br><br>
+    <div id="resultado"></div>
+    <div id="temposPorItem">
+        <h3>Tempo Dedicado por Item:</h3>
+        <ul id="listaTemposPorItem" class="sortable"></ul>
+    </div>
+</div>
+<button id="saveState">Salvar Estado</button>
+<button id="loadState" onclick="document.getElementById('fileInput').click();">Carregar Estado</button>
+<input type="file" id="fileInput" style="display: none;" onchange="loadStateFromFile(event)"/>
+<script>
+    var inputs = Array.from(document.querySelectorAll('input[type="range"]'));
+    var values = Array.from(document.querySelectorAll('span'));
+
+    inputs.forEach(function(input, index) {
+        input.addEventListener('input', function() {
+            updateValues(index, parseInt(this.value));
+        });
+    });
+
+    function updateValues(changedIndex, changedValue) {
+        var totalValue = inputs.reduce(function(sum, input, index) {
+            return index === changedIndex ? sum + changedValue : sum + parseInt(input.value);
+        }, 0);
+
+        if (totalValue > 100) {
+            var excessValue = totalValue - 100;
+            var remainingInputs = inputs.filter(function(_, index) {
+                return index !== changedIndex;
+            });
+
+            var totalRemainingValue = remainingInputs.reduce(function(sum, input) {
+                return sum + parseInt(input.value);
+            }, 0);
+
+            remainingInputs.forEach(function(input, index) {
+                var currentValue = parseInt(input.value);
+                var newValue = Math.max(0, currentValue - Math.floor(excessValue * currentValue / totalRemainingValue));
+                input.value = newValue;
+                values[inputs.indexOf(input)].textContent = newValue;
+            });
+        }
+
+        values[changedIndex].textContent = changedValue;
+        updateChart();
+    }
+
+    function updateChart() {
+        var itemContainers = Array.from(document.querySelectorAll('.item-container:not(.inactive)'));
+        var labels = itemContainers.map(function(container) {
+            return container.querySelector('label').textContent.split(':')[0].trim();
         });
 
-        function unityProgress (gameInstance, progress) {
-          if (!gameInstance.progress) {
-            gameInstance.loader = document.getElementById('loader');
-            gameInstance.progress = document.getElementById('progress');
-            gameInstance.loading = document.getElementById('loading');
-            document.dispatchEvent(new CustomEvent('UnityProgressStart'));
-          }
-          gameInstance.progress.style.width = (100 * progress) + '%';
-          if (progress === 1) {
-            document.dispatchEvent(new CustomEvent('UnityLoaded'));
-          }
+        var data = [{
+            x: labels,
+            y: itemContainers.map(function(container) {
+                return parseInt(container.querySelector('input[type="range"]').value);
+            }),
+            type: 'bar',
+            text: itemContainers.map(function(container) {
+                return 'Prioridade: ' + container.querySelector('select').value;
+            }),
+            textposition: 'auto',
+            hoverinfo: 'text',
+            marker: {
+                color: 'rgb(158,202,225)',
+                opacity: 0.6,
+                line: {
+                    color: 'rgb(8,48,107)',
+                    width: 1.5
+                }
+            }
+        }];
+
+        var layout = {
+            title: 'Distribuição de Tempo por Prioridade',
+            xaxis: { title: 'Prioridades' },
+            yaxis: { title: 'Percentual de Tempo Dedicado' }
+        };
+
+        Plotly.newPlot('chart', data, layout);
+    }
+
+    function calcularTempoDedicado() {
+        var frequencia = document.getElementById('frequencia').value;
+        var horas = parseInt(document.getElementById('horas').value);
+        var resultado = document.getElementById('resultado');
+
+        var tempoMensal;
+        switch (frequencia) {
+            case 'semanal':
+                tempoMensal = horas * 4;
+                break;
+            case 'quinzenal':
+                tempoMensal = horas * 2;
+                break;
+            case '21dias':
+                tempoMensal = horas * 1.5;
+                break;
         }
-    </script>
-  </head>
-  <body>
-    <div id="loader">
-      <div id="loading" class="loading">Loading</div>
-      <div id="progress" class="progress"></div>
-    </div>
 
-    <div id="game">
-      <div id="gameContainer"></div>
-    </div>
+        resultado.innerHTML = 'Tempo dedicado mensalmente: ' + tempoMensal + ' horas';
 
-    <div id="instruction">
-      <div id="novr" class="panel center">
-        <h3>You&rsquo;ll need a <a href="https://developer.mozilla.com/topics/mixed-reality/">WebXR-enabled browser</a> and VR headset to fully enjoy this experience.</h3>
-        <p><img src="mousedrag.png" width="70" alt="Click-and-drag your mouse"></p>
-        <p>In the meantime, <strong><em>click and drag</em></strong> to have a look around!</p>
-        <p>
-          <button class="confirm">Continue</button>
-        </p>
-      </div>
+        var itemContainers = Array.from(document.querySelectorAll('.item-container:not(.inactive)'));
+        var temposPorItemHTML = '';
+        itemContainers.forEach(function(container) {
+            var input = container.querySelector('input[type="range"]');
+            var percentual = parseInt(input.value);
+            var tempoDedicado = (percentual / 100) * tempoMensal;
+            temposPorItemHTML += '<li>' + input.name + ': ' + tempoDedicado.toFixed(2) + ' horas</li>';
+        });
 
-      <div id="nosecure" class="panel center">
-        <h3>You&rsquo;ll need a secure context (HTTPS or localhost) to execute WebXR applications.</h3>
-        <p><img src="mousedrag.png" width="70" alt="Click-and-drag your mouse"></p>
-        <p>In the meantime, <strong><em>click and drag</em></strong> to have a look around!</p>
-        <p>
-          <button class="confirm">Continue</button>
-        </p>
-      </div>
+        document.getElementById('listaTemposPorItem').innerHTML = temposPorItemHTML;
 
-    </div>
+        // Inicializa o Sortable.js na lista de tempos por item
+        new Sortable(document.getElementById('listaTemposPorItem'), { animation: 150 }); }
 
-    <button id="enterxr" value="Enter VR"></button>
+    function toggleItemStatus(selectElement) {
+        var itemContainer = selectElement.closest('.item-container');
+        var isInactive = selectElement.value === '0';
 
-    <div id="performance" data-enabled="false"></div>
+        itemContainer.classList.toggle('inactive', isInactive);
 
-    <script src="vendor/gl-matrix-min.js"></script>
-    <script src="webxr.js"></script>
-  </body>
+        var input = itemContainer.querySelector('input[type="range"]');
+        input.disabled = isInactive;
 
+        if (isInactive) {
+            input.value = '0';
+            itemContainer.querySelector('span').textContent = '0';
+        }
+
+        updateChart();
+        calcularTempoDedicado();
+    }
+
+    // Inicializa o Sortable.js nos itens do formulário
+    new Sortable(document.getElementById('itemForm'), {
+        animation: 150,
+        onUpdate: function() {
+            updateChart();
+            calcularTempoDedicado();
+        }
+    });
+
+    updateChart();
+
+
+document.getElementById('saveState').addEventListener('click', saveStateToFile);
+
+function saveStateToFile() {
+    var state = {
+        items: inputs.map(input => ({
+            id: input.id,
+            value: input.value,
+            priority: document.getElementById(input.id + 'Prioridade').value,
+            order: [...document.getElementById('itemForm').children].indexOf(input.closest('.item-container'))
+        })),
+        frequencia: document.getElementById('frequencia').value,
+        horas: document.getElementById('horas').value
+    };
+    var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state));
+    var dlAnchorElem = document.createElement('a');
+    dlAnchorElem.setAttribute("href", dataStr);
+    dlAnchorElem.setAttribute("download", "estado-aplicacao.json");
+    dlAnchorElem.click();
+}
+
+function loadStateFromFile(event) {
+    var file = event.target.files[0];
+    if (file) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            var state = JSON.parse(e.target.result);
+            // Primeiro, ordene os itens com base na propriedade 'order' salva.
+            state.items.sort((a, b) => a.order - b.order);
+            // Em seguida, atualize a ordem dos elementos no DOM.
+            const itemForm = document.getElementById('itemForm');
+            state.items.forEach(item => {
+                const itemContainer = document.getElementById(item.id).closest('.item-container');
+                itemForm.appendChild(itemContainer); // Isso move o elemento para a nova posição.
+                var input = document.getElementById(item.id);
+                var select = document.getElementById(item.id + 'Prioridade');
+                input.value = item.value;
+                select.value = item.priority;
+                updateValues(inputs.indexOf(input), parseInt(item.value));
+            });
+            document.getElementById('frequencia').value = state.frequencia;
+            document.getElementById('horas').value = state.horas;
+            calcularTempoDedicado();
+        };
+        reader.readAsText(file);
+    }
+}
+
+</script>
+
+</body>
 </html>
+
