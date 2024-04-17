@@ -96,7 +96,7 @@
         </div>
 
         <div class="item-container">
-            <label for="ticket">Aumento Ticket Médio: <span id="ticketValue">10</span>%</label>
+            <label for="ticket">Aum. Ticket Médio: <span id="ticketValue">10</span>%</label>
             <input type="range" id="ticket" name="ticket" min="0" max="100" value="10" step="1">
             <select id="ticketPrioridade" onchange="toggleItemStatus(this)">
                 <option value="0" selected>0</option>
@@ -303,74 +303,88 @@
     }
 
     function updateChart() {
-        var itemContainers = Array.from(document.querySelectorAll('.item-container:not(.inactive)'));
-        var labels = itemContainers.map(function(container) {
-            return container.querySelector('label').textContent.split(':')[0].trim();
-        });
+    var itemContainers = Array.from(document.querySelectorAll('.item-container:not(.inactive)'));
+    var labels = itemContainers.map(function(container) {
+        return container.querySelector('label').textContent.split(':')[0].trim();
+    });
 
-        var data = [{
-            x: labels,
-            y: itemContainers.map(function(container) {
-                return parseInt(container.querySelector('input[type="range"]').value);
-            }),
-            type: 'bar',
-            text: itemContainers.map(function(container) {
-                return 'Prioridade: ' + container.querySelector('select').value;
-            }),
-            textposition: 'auto',
-            hoverinfo: 'text',
-            marker: {
-                color: 'rgb(158,202,225)',
-                opacity: 0.6,
-                line: {
-                    color: 'rgb(8,48,107)',
-                    width: 1.5
-                }
+    var data = [{
+        x: labels,
+        y: itemContainers.map(function(container) {
+            return parseInt(container.querySelector('input[type="range"]').value);
+        }),
+        type: 'bar',
+        text: itemContainers.map(function(container) {
+    var percentage = container.querySelector('span').textContent;
+    return percentage + '%';
+}),
+
+        textposition: 'auto',
+        hoverinfo: 'text',
+        marker: {
+            color: 'rgb(158,202,225)',
+            opacity: 0.6,
+            line: {
+                color: 'rgb(8,48,107)',
+                width: 1.5
             }
-        }];
+        }
+    }];
 
-        var layout = {
-            title: 'Distribuição de Tempo por Prioridade',
-            xaxis: { title: 'Prioridades' },
-            yaxis: { title: 'Percentual de Tempo Dedicado' }
-        };
+    var layout = {
+        title: 'Distribuição de Tempo por Prioridade',
+        xaxis: { title: 'Prioridades' },
+        yaxis: { title: 'Percentual de Tempo Dedicado' }
+    };
 
-        Plotly.newPlot('chart', data, layout);
-    }
+    Plotly.newPlot('chart', data, layout);
+}
+
 
     function calcularTempoDedicado() {
-        var frequencia = document.getElementById('frequencia').value;
-        var horas = parseInt(document.getElementById('horas').value);
-        var resultado = document.getElementById('resultado');
+    var frequencia = document.getElementById('frequencia').value;
+    var horas = parseInt(document.getElementById('horas').value);
+    var resultado = document.getElementById('resultado');
 
-        var tempoMensal;
-        switch (frequencia) {
-            case 'semanal':
-                tempoMensal = horas * 4;
-                break;
-            case 'quinzenal':
-                tempoMensal = horas * 2;
-                break;
-            case '21dias':
-                tempoMensal = horas * 1.5;
-                break;
-        }
+    var tempoMensal;
+    switch (frequencia) {
+        case 'semanal':
+            tempoMensal = horas * 4;
+            break;
+        case 'quinzenal':
+            tempoMensal = horas * 2;
+            break;
+        case '21dias':
+            tempoMensal = horas * 1.5;
+            break;
+    }
 
-        resultado.innerHTML = 'Tempo dedicado mensalmente: ' + tempoMensal + ' horas';
+    // Convertendo tempoMensal para horas e minutos
+    var horasConvertidas = Math.floor(tempoMensal);
+    var minutosConvertidos = Math.round((tempoMensal - horasConvertidas) * 60);
 
-        var itemContainers = Array.from(document.querySelectorAll('.item-container:not(.inactive)'));
-        var temposPorItemHTML = '';
-        itemContainers.forEach(function(container) {
-            var input = container.querySelector('input[type="range"]');
-            var percentual = parseInt(input.value);
-            var tempoDedicado = (percentual / 100) * tempoMensal;
-            temposPorItemHTML += '<li>' + input.name + ': ' + tempoDedicado.toFixed(2) + ' horas</li>';
-        });
+    resultado.innerHTML = 'Tempo dedicado mensalmente: ' + horasConvertidas + ' horas ' + minutosConvertidos + ' minutos';
 
-        document.getElementById('listaTemposPorItem').innerHTML = temposPorItemHTML;
+    var itemContainers = Array.from(document.querySelectorAll('.item-container:not(.inactive)'));
+    var temposPorItemHTML = '';
+    itemContainers.forEach(function(container) {
+        var input = container.querySelector('input[type="range"]');
+        var percentual = parseInt(input.value);
+        var tempoDedicado = (percentual / 100) * tempoMensal;
 
-        // Inicializa o Sortable.js na lista de tempos por item
-        new Sortable(document.getElementById('listaTemposPorItem'), { animation: 150 }); }
+        // Convertendo tempoDedicado para horas e minutos
+        var horasItem = Math.floor(tempoDedicado);
+        var minutosItem = Math.round((tempoDedicado - horasItem) * 60);
+
+        temposPorItemHTML += '<li>' + input.name + ': ' + horasItem + ' horas ' + minutosItem + ' minutos</li>';
+    });
+
+    document.getElementById('listaTemposPorItem').innerHTML = temposPorItemHTML;
+
+    // Inicializa o Sortable.js na lista de tempos por item
+    new Sortable(document.getElementById('listaTemposPorItem'), { animation: 150 });
+}
+
 
     function toggleItemStatus(selectElement) {
         var itemContainer = selectElement.closest('.item-container');
@@ -453,4 +467,3 @@ function loadStateFromFile(event) {
 
 </body>
 </html>
-
